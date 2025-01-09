@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript" >
+        (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+        (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+    
+        ym(99450182, "init", {
+            clickmap:true,
+            trackLinks:true,
+            accurateTrackBounce:true
+        });
+    </script>
+ <noscript><div><img src="https://mc.yandex.ru/watch/99450182" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+ <!-- /Yandex.Metrika counter -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Инвестиционный расчет</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background-color: #f9f9f9;
+        }
+
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 1px;
+            text-align: center;
+        }
+
+        input[type="number"], input[type="range"] {
+            width: 95%;
+            border: 0;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: large;            
+            margin: 10px 0;
+            background-color: #ffff;
+        }
+
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .left-column {
+            background-color: #34495e;
+            color: white;
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 1px solid #ccc;            
+        }
+
+        .right-column {
+            flex: 4;            
+            padding: 10px;
+            overflow-y: auto;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        table {
+            width: 40%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                flex-direction: column;
+            }
+            .left-column, .right-column {
+                flex: 1;
+            }
+        }
+        .chart-container {
+            position: relative;
+            height: 40vh;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .footer {
+            margin-top: 10px;
+            padding: 50px;
+            text-align: left;
+        }
+
+
+    </style>
+</head>
+<body>
+    <header>
+        <h4>План инвестиционного проекта, <br> верхнеуровневые расчеты и визуализации итогов</h4>        
+    </header>
+
+    <div class="container">
+        <div class="left-column">
+            <h2>Переменные расчета:</h2>
+            <button onclick="calculate()">Рассчитать</button>
+            <p></p>
+
+            <label for="invest">Введите сумму инвестиций в актив:</label>
+            <input type="number" id="invest_input" value="20000" step="1"/>
+
+            <label for="kred">Введите сумму кредита:</label>
+            <input type="number" id="kredit_input" value="15000" step="1"/>
+
+            <label for="interest">Введите процентную ставку по кредиту (%):</label>
+            <input type="number" id="interest_input" value="19" step="0.01"/>
+
+            <label for="termKred">Введите срок кредитования в годах:</label>
+            <input type="number" id="termKred_input" value="15"/>
+            
+            <label for="termStart">Введите год начала операционной стадии:</label>
+            <input type="number" id="termStart_input" value="2"/>
+
+            <label for="sales">Введите сумму годовой выручки:</label>
+            <input type="number" id="sales_input" value="12000" step="100"/>
+
+
+            <label for="rateRentab">Введите рентабельность по валовой прибыли (%):</label>
+            <input type="number" id="rateRentab_input" value="40" step="0.5"/>
+
+            <label for="termAmort">Введите период амортизации актива (лет):</label>
+            <input type="number" id="termAmort_input" value="15"/>
+            
+            <label for="infl">Введите годовой индекс инфляции:</label>
+            <input type="number" id="infl_input" value="1.04" step="0.01"/>
+
+            <label for="rateDisc">Введите ставку дисконтирования (%):</label>
+            <input type="number" id="rateDisc_input" value="21" step="0.5"/>
+
+            <label for="taxPr">Введите ставку налога на прибыль (%):</label>
+            <input type="number" id="taxPr_input" value="25" step="1"/>
+
+
+            <button onclick="calculate()">Рассчитать</button>
+
+        </div>
+
+        <div class="right-column">
+            <hr>
+            <h2>Результаты расчетов по кредиту:</span></h2>
+            <h3>Сумма кредита: <span id="kredit_output"></span></h3>
+            
+            <h3>Сумма процентов по кредиту за весь период: <span id="interest_sum_output"></span></h3>
+            <h3>Ежегодный платеж по телу кредита: <span id="kredPayYear_output"></span></h3>
+            
+            <p><small>Кредит: <span id="loanBal_output"></span></small></p>             
+            <p><small>Проценты по кредиту: <span id="interest_array_output"></span></small></p>
+          
+                    
+            <!--График кредита-->
+            <div class="chart-container">
+                <canvas id="chart"></canvas>
+            </div>
+
+            <!-- Таблица с данными Пока скрыл-->
+            <!-- <table>
+                <thead>
+                    <tr>
+                        <th>Год</th>
+                        <th>Кредит</th>
+                        <th>Проценты</th>
+                    </tr>
+                </thead>
+                <tbody id="data-table-body">
+                </tbody> -->
+            </table>
+
+            <hr></hr>
+            <h2>Результаты расчетов по созданию актива и его амортизации:</h2>
+            <h3>Ежегодная сумма амортизации актива: <span id="amortYear_output"></span></h3>
+            <h3>Амортизация за весь период: <span id="amort_sum_output"></span></h3>
+            
+            <p><small>Актив: <span id="active3_array_output"></span></small></p>
+            <p><small>Амортизация: <span id="amort_array_output"></span></small></p>
+            <!--График амортизации-->
+            <div class="chart-container">
+                <canvas id="chart_3"></canvas>
+            </div>
+
+            <hr></hr>
+            <h2>Результаты расчетов прибыли и убытков (PL):</h2>
+            <h3>Продажи за весь период: <span id="sales_sum_output"></span></h3>
+            <h3>Валовая прибыль за весь период: <span id="profit1_sum_output"></span></h3>
+            <h3>Прибыль до налогообл. за весь период: <span id="profit2_sum_output"></span></h3>
+            <h3>Налог на прибыль за весь период: <span id="tax_sum_output"></span></h3>  
+            <h3>Чистая прибыль за весь период: <span id="profit3_sum_output"></span></h3>
+
+            <p><small>Продажи: <span id="sales_array_output"></span></small></p>
+            <p><small>Валовая прибыль: <span id="profit1_array_output"></span></small></p>
+            <p><small>Прибыль до налогообложения: <span id="profit2_array_output"></span></small></p>
+            <p><small>Налог на прибыль: <span id="tax_array_output"></span></small></p>
+            <p><small>Чистая прибыль: <span id="profit3_array_output"></span></small></p>
+
+
+            <!--График PL-->
+            <div class="chart-container">
+                <canvas id="chart_2"></canvas>
+            </div>
+
+            <hr>
+            <h2>Результаты расчетов денежных потоков (CF):</span></h2>
+            <h3>Денежный поток (CF) за весь период: <span id="cf_sum_output"></span></h3>
+            <h3>Дисконтированый денежный поток (DCF) за весь период: <span id="dcf_sum_output"></span></h3>
+            <p><small>Денежный поток от инвест. деят-ти: <span id="invest_array_output"></span></small></p>
+            <p><small>Денежный поток от опер. деят-ти: <span id="cfo_array_output"></span></small></p>
+            <p><small>Денежный поток: <span id="cf_array_output"></span></small></p>
+            <p><small>Денежный поток накопит. итогом: <span id="cf_rt_array_output"></span></small></p>
+            <p><small>Дисконт. денежный поток: <span id="dcf_array_output"></span></small></p>
+            <p><small>Дисконт. денежный поток накопит. итогом: <span id="dcf_rt_array_output"></span></small></p>
+
+            <!--График CF-->
+            <div class="chart-container">
+                <canvas id="chart_4"></canvas>
+            </div>
+            <!--График DCF-->
+            <div class="chart-container">
+                <canvas id="chart_5"></canvas>
+            </div>
+
+            <!--Подпись внизу страницы-->
+            <div class="footer">
+                <hr>
+                <p>&copy; Copyright 2025 <strong><span>Смоленышев Олег Вячеславович. ИНН 771800842058. ОГРН 323774600351922</span></strong>. All Rights Reserved</p>
+                <p><strong>Email: </strong><span itemprop="email"><a href="mailto:smolenishev@otter-finance.ru" target="_blank">smolenishev@otter-finance.ru</a></span></p>
+                <p><small>Бета - версия (0.9.1) от 2025-01-08</small></p>
+                <hr>
+            </div>
+
+
+
+
+            
+        </div>
+        
+
+    
+    </div>
+
+
+
+
+<script>
+    let chart;
+    let chart_2;
+    let chart_3;
+    let chart_4;
+    let chart_5;
+    function calculate() {
+        const invest = parseInt(document.getElementById('invest_input').value); // 1
+        const kred = parseInt(document.getElementById('kredit_input').value); // 2
+        const interest = parseFloat(document.getElementById('interest_input').value); // 3
+        const termKred = parseInt(document.getElementById('termKred_input').value); // 4
+        const termStart = parseInt(document.getElementById('termStart_input').value); // 5
+        const sales = parseInt(document.getElementById('sales_input').value); // 6
+        const infl = parseFloat(document.getElementById('infl_input').value); // 7
+        const rateRentab = parseFloat(document.getElementById('rateRentab_input').value); // 8
+        const rateDisc = parseFloat(document.getElementById('rateDisc_input').value); // 9
+        const taxPr = parseFloat(document.getElementById('taxPr_input').value); // 10
+        const termAmort = parseInt(document.getElementById('termAmort_input').value); //11
+
+        // пока отключил что бы не мешало. В продакшн включить.
+
+        if (isNaN(invest) || isNaN(kred) || isNaN(interest) || isNaN(termKred) || isNaN(termStart) || isNaN(sales) || isNaN(infl) || isNaN(rateRentab) || isNaN(rateDisc) || isNaN(taxPr) || isNaN(termAmort)) {
+            alert("Пожалуйста, введите корректные значения всех переменных.");
+            return;
+        }
+
+        //==============================
+        // Расчет кредита
+
+        // const kred = kredit;
+        // document.getElementById('kred').innerText = kred.toFixed(2);
+
+        // для выврла на экран
+        document.getElementById("kredit_output").innerText=kred.toFixed(2);
+        
+
+        const kredPayYear = kred / termKred;
+        document.getElementById('kredPayYear_output').innerText = kredPayYear.toFixed(2);
+
+
+        // расчет задолженности по телу кредита на конец каждого года:
+        const loan_bal_1 = (kred - kredPayYear)>0 ? (kred - kredPayYear) : 0;        
+        const loan_bal_2 = (loan_bal_1 - kredPayYear)>0 ? (loan_bal_1 - kredPayYear) : 0;   
+        const loan_bal_3 = (loan_bal_2 - kredPayYear)>0 ? (loan_bal_2 - kredPayYear) : 0;     
+        const loan_bal_4 = (loan_bal_3 - kredPayYear)>0 ? (loan_bal_3 - kredPayYear) : 0;     
+        const loan_bal_5 = (loan_bal_4 - kredPayYear)>0 ? (loan_bal_4 - kredPayYear) : 0;   
+        const loan_bal_6 = (loan_bal_5 - kredPayYear)>0 ? (loan_bal_5 - kredPayYear) : 0;      
+        const loan_bal_7 = (loan_bal_6 - kredPayYear)>0 ? (loan_bal_6 - kredPayYear) : 0;    
+        const loan_bal_8 = (loan_bal_7 - kredPayYear)>0 ? (loan_bal_7 - kredPayYear) : 0;      
+        const loan_bal_9 = (loan_bal_8 - kredPayYear)>0 ? (loan_bal_8 - kredPayYear) : 0;      
+        const loan_bal_10 = (loan_bal_9 - kredPayYear)>0 ? (loan_bal_9 - kredPayYear) : 0;
+        const loan_bal_11 = (loan_bal_10 - kredPayYear)>0 ? (loan_bal_10 - kredPayYear) : 0;
+        const loan_bal_12 = (loan_bal_11 - kredPayYear)>0 ? (loan_bal_11 - kredPayYear) : 0;
+        const loan_bal_13 = (loan_bal_12 - kredPayYear)>0 ? (loan_bal_12 - kredPayYear) : 0;
+        const loan_bal_14 = (loan_bal_13 - kredPayYear)>0 ? (loan_bal_13 - kredPayYear) : 0;
+        const loan_bal_15 = (loan_bal_14 - kredPayYear)>0 ? (loan_bal_14 - kredPayYear) : 0;
+        const loan_bal_16 = (loan_bal_15 - kredPayYear)>0 ? (loan_bal_15 - kredPayYear) : 0;
+        const loan_bal_17 = (loan_bal_16 - kredPayYear)>0 ? (loan_bal_16 - kredPayYear) : 0;
+        const loan_bal_18 = (loan_bal_17 - kredPayYear)>0 ? (loan_bal_17 - kredPayYear) : 0;
+        const loan_bal_19 = (loan_bal_18 - kredPayYear)>0 ? (loan_bal_18 - kredPayYear) : 0;
+        const loan_bal_20 = (loan_bal_19 - kredPayYear)>0 ? (loan_bal_19 - kredPayYear) : 0;
+
+        //-----------------
+        // делаю через цикл
+        let loan_bal = kred;
+        const loan_bal_array = [];
+        for (let i=0; i<20; i++) {
+            loan_bal -= kredPayYear;
+            loan_bal = loan_bal > 0 ? loan_bal.toFixed(2) : 0;
+            loan_bal_array.push(loan_bal);
+        }
+        loan_bal_array.unshift(kred); // доавлю в 0 индекс значение кредита
+
+        // пока откл.
+        // document.getElementById('loan_bal_array_output').innerText = loan_bal_array;
+
+        // Массив переменых по остатку задолженности по кредиту
+        const loanBal = [
+            kred,
+            loan_bal_1,
+            loan_bal_2,
+            loan_bal_3,
+            loan_bal_4,
+            loan_bal_5,
+            loan_bal_6,
+            loan_bal_7,
+            loan_bal_8,
+            loan_bal_9,
+            loan_bal_10,
+            loan_bal_11,
+            loan_bal_12,
+            loan_bal_13,
+            loan_bal_14,
+            loan_bal_15,
+            loan_bal_16,
+            loan_bal_17,
+            loan_bal_18,
+            loan_bal_19,
+            loan_bal_20,
+
+        ];
+        // для выврла на экран
+        document.getElementById('loanBal_output').innerText = loanBal;
+
+
+        // проценты по кредиту за каждый год
+        const interest_1  = (kred + 0)>0 ? (kred + 0) /2 * interest /100 : 0;
+        const interest_2  = (loan_bal_1 + loan_bal_2)>0 ? (loan_bal_1 + loan_bal_2) /2 * interest /100 : 0;
+        const interest_3  = (loan_bal_3 + loan_bal_3)>0 ? (loan_bal_3 + loan_bal_3) /2 * interest /100 : 0;
+        const interest_4  = (loan_bal_3 + loan_bal_4)>0 ? (loan_bal_3 + loan_bal_4) /2 * interest /100 : 0;
+        const interest_5  = (loan_bal_4 + loan_bal_5)>0 ? (loan_bal_4 + loan_bal_5) /2 * interest /100 : 0;
+        const interest_6  = (loan_bal_5 + loan_bal_6)>0 ? (loan_bal_5 + loan_bal_6) /2 * interest /100 : 0;
+        const interest_7  = (loan_bal_6 + loan_bal_7)>0 ? (loan_bal_6 + loan_bal_7) /2 * interest /100 : 0;
+        const interest_8  = (loan_bal_7 + loan_bal_8)>0 ? (loan_bal_7 + loan_bal_8) /2 * interest /100 : 0;
+        const interest_9  = (loan_bal_8 + loan_bal_9)>0 ? (loan_bal_8 + loan_bal_9) /2 * interest /100 : 0;
+        const interest_10 = (loan_bal_9 + loan_bal_10)>0 ? (loan_bal_9 + loan_bal_10) /2 * interest /100 : 0;
+        const interest_11 = (loan_bal_10 + loan_bal_11)>0 ? (loan_bal_10 + loan_bal_11) /2 * interest /100 : 0;
+        const interest_12 = (loan_bal_11 + loan_bal_12)>0 ? (loan_bal_11 + loan_bal_12) /2 * interest /100 : 0;
+        const interest_13 = (loan_bal_12 + loan_bal_13)>0 ? (loan_bal_12 + loan_bal_13) /2 * interest /100 : 0;
+        const interest_14 = (loan_bal_13 + loan_bal_14)>0 ? (loan_bal_13 + loan_bal_14) /2 * interest /100 : 0;
+        const interest_15 = (loan_bal_14 + loan_bal_15)>0 ? (loan_bal_14 + loan_bal_15) /2 * interest /100 : 0;
+        const interest_16 = (loan_bal_15 + loan_bal_16)>0 ? (loan_bal_15 + loan_bal_16) /2 * interest /100 : 0;
+        const interest_17 = (loan_bal_16 + loan_bal_17)>0 ? (loan_bal_16 + loan_bal_17) /2 * interest /100 : 0;
+        const interest_18 = (loan_bal_17 + loan_bal_18)>0 ? (loan_bal_17 + loan_bal_18) /2 * interest /100 : 0;
+        const interest_19 = (loan_bal_18 + loan_bal_19)>0 ? (loan_bal_18 + loan_bal_19) /2 * interest /100 : 0;
+        const interest_20 = (loan_bal_19 + loan_bal_20)>0 ? (loan_bal_19 + loan_bal_20) /2 * interest /100 : 0;
+
+
+        const interest_array = [
+        0,
+        interest_1,
+        interest_2,
+        interest_3,
+        interest_4,
+        interest_5,
+        interest_6,
+        interest_7,
+        interest_8,
+        interest_9,
+        interest_10,
+        interest_11,
+        interest_12,
+        interest_13,
+        interest_14,
+        interest_15,
+        interest_16,
+        interest_17, 
+        interest_18,
+        interest_19,
+        interest_20,
+        ];
+        
+        // для выврла на экран
+        document.getElementById('interest_array_output').innerText = interest_array;
+        
+        // итого продаж за весь период
+        let interest_sum = 0;
+        interest_array.forEach(function(num) {interest_sum += num;})
+        document.getElementById('interest_sum_output').innerText = interest_sum.toFixed(2);
+
+
+        
+        // Вывод графика тела кредита и процентов
+        const labels = loan_bal_array.map((_, index) => `${index}`);
+
+        const ctx = document.getElementById('chart').getContext('2d');
+        if (chart) {
+            chart.destroy();
+        }
+        chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: "Кредит на конец периода",
+                        data: loan_bal_array,
+                        backgroundColor: "blue",
+                        borderWidth: 1,
+                        fill: false
+                    },
+                    {
+                        label: "Проценты по кредиту на конец периода",
+                        data: interest_array,
+                        backgroundColor: "lightblue",
+                        borderWidth: 1,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+
+        // Получаем элемент tbody для добавления данных
+        // const tableBody = document.getElementById('data-table-body');
+        // tableBody.innerHTML = '';
+
+        // Заполняем таблицу данными из массивов
+        // for (let i = 0; i < loanBal.length; i++) {
+        //     const row = document.createElement('tr');
+            
+        //     const indexCell = document.createElement('td');
+        //     indexCell.textContent = i ; // Индекс (начиная с 0)
+            
+        //     const array1Cell = document.createElement('td');
+        //     array1Cell.textContent = loanBal[i]; // Значение из первого массива
+            
+        //     const array2Cell = document.createElement('td');
+        //     array2Cell.textContent = interestSum[i]; // Значение из второго массива
+            
+        //     row.appendChild(indexCell);
+        //     row.appendChild(array1Cell);
+        //     row.appendChild(array2Cell);
+            
+        //     tableBody.appendChild(row);
+        // }
+
+        
+        //==============================
+        // Расчет амортизации актива
+
+        // Актив
+        const active_array = [invest];      
+        // дополняю массв до 20 значений нулям
+        while (active_array.length <20) {active_array.push(0);}
+
+
+        // амортизация в год
+        const amortYear = invest / termAmort;
+        document.getElementById('amortYear_output').innerText = amortYear.toFixed(2);
+
+        // амортизация по годам c года старта проекта
+        const temp_array = [];        
+        for (let i=1; i<=20; i++) {
+            temp_array.push((i>termStart) ? amortYear : 0);
+        }
+        // амортизация по годам c года старта проекта по срок амортизации
+        const amort_array = temp_array.slice(0, (termStart+termAmort));
+
+        // дополняю массв до 20 значений
+        while (amort_array.length <20) {amort_array.push(0);}
+
+        document.getElementById("amort_array_output").innerHTML=amort_array;
+                
+        // итого амортизация за весь период
+        let amort_sum = 0;
+        amort_array.forEach(function(num) {amort_sum += num;})
+        document.getElementById("amort_sum_output").innerHTML=amort_sum.toFixed(2);
+        
+        // расчет остаточной стоимости актива
+        const active2_array = active_array.map((value, index) => value  - amort_array[index]); //
+        let sum = 0;
+        const active3_array = active2_array.map(value=> {
+            sum += value;
+            return sum;
+        });
+        document.getElementById("active3_array_output").innerHTML=active3_array;
+
+        // Вывод графика амортизации
+        const labels_3 = amort_array.map((_, index) => `${index}`);
+
+        const ctx_3 = document.getElementById('chart_3').getContext('2d');
+        if (chart_3) {
+            chart_3.destroy();
+        }
+        chart_3 = new Chart(ctx_3, {
+            type: 'bar',
+            data: {
+                labels: labels_3,
+                datasets: [
+                    {
+                        label: "Актив на конец периода",
+                        data: active3_array,
+                        backgroundColor: "darkorange",
+                        borderWidth: 1,
+                        fill: false
+                    },
+                    {
+                        label: "Амортизация по периодам",
+                        data: amort_array,
+                        backgroundColor: "orange",
+                        borderWidth: 1,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+
+
+        //==============================
+        // Расчет продаж
+        const sales_array = [];        
+        for (let i=1; i<=20; i++) {
+            sales_array.push((i>termStart) ? sales*(infl**i) : 0);
+        }
+        document.getElementById("sales_array_output").innerHTML=sales_array;
+        
+        // итого продаж за весь период
+        let sales_sum = 0;
+        sales_array.forEach(function(num) {sales_sum += num;})
+        document.getElementById("sales_sum_output").innerHTML=sales_sum.toFixed(2);
+
+        //Расчет валовой прибыли
+        const profit1_array = sales_array.map(function(x) {return x * (rateRentab/100)});
+        document.getElementById("profit1_array_output").innerHTML=profit1_array;
+
+        // итого валовая прибыль за весь период
+        let profit1_sum = 0;
+        profit1_array.forEach(function(num) {profit1_sum += num;})
+        document.getElementById("profit1_sum_output").innerHTML=profit1_sum.toFixed(2);
+
+        // Расчет прибыли до налогообложения: валовая прибыль минус амортизация и минус проценты по кредиту
+        const profit2_array = profit1_array.map((value, index) => value  - amort_array[index] - interest_array[index]); //
+        document.getElementById("profit2_array_output").innerHTML=profit2_array;
+        // итого Прибыль до налогообл за весь период
+        let profit2_sum = 0;
+        profit2_array.forEach(function(num) {profit2_sum += num;})
+        document.getElementById("profit2_sum_output").innerHTML=profit2_sum.toFixed(2);
+
+        // Расчет налога на прибыль
+        const tax_array = profit2_array.map(function(x) {return x * (taxPr/100)});
+        document.getElementById("tax_array_output").innerHTML=tax_array;
+        // итого налог на прибыль за весь период
+        let tax_sum = 0;
+        tax_array.forEach(function(num) {tax_sum += num;})
+        document.getElementById("tax_sum_output").innerHTML=tax_sum.toFixed(2);
+        
+        // Расчет чистой прибыли:
+        const profit3_array = profit2_array.map((value, index) => value  - tax_array[index]); //
+        document.getElementById("profit2_array_output").innerHTML=profit3_array;
+        // итого Прибыль до налогообл за весь период
+        let profit3_sum = 0;
+        profit3_array.forEach(function(num) {profit3_sum += num;})
+        document.getElementById("profit3_sum_output").innerHTML=profit3_sum.toFixed(2); 
+
+        // Вывод графика PL
+        const labels_2 = sales_array.map((_, index) => `${index}`);
+
+        const ctx_2 = document.getElementById('chart_2').getContext('2d');
+        if (chart_2) {
+            chart_2.destroy();
+        }
+        chart_2 = new Chart(ctx_2, {
+            type: 'bar',
+            data: {
+                labels: labels_2,
+                datasets: [
+                    {
+                        label: "Продажи",
+                        data: sales_array,
+                        backgroundColor: "darkgreen",
+                        borderWidth: 1,
+                        fill: false
+                    },
+                    {
+                        label: "Валовая прибыль",
+                        data: profit1_array,
+                        backgroundColor: "springgreen",
+                        borderWidth: 1,
+                        fill: false
+                    },
+                    {
+                        label: "Прибыль до налога",
+                        data: profit2_array,
+                        backgroundColor: "mediumseagreen",
+                        borderWidth: 1,
+                        fill: false
+                    },
+                    {
+                        label: "Чистая прибыль",
+                        data: profit3_array,
+                        backgroundColor: "lightgreen",
+                        borderWidth: 1,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        //==============================
+        // Расчет денежных потоков
+        // CF invest
+        const invest_array = [-invest];        
+        // дополняю массв до 20 значений нулям
+        while (invest_array.length <20) {invest_array.push(0);}
+        document.getElementById("invest_array_output").innerHTML=invest_array;
+        console.log("Длина: " + invest_array.length)
+
+        // CF oper:
+        const cfo_array = profit1_array.map((value, index) => value  - tax_array[index]);
+        document.getElementById("cfo_array_output").innerHTML=cfo_array;
+        console.log(cfo_array.length)
+
+        // CF = invest_arry + cfo_array
+        const cf_array = cfo_array.map((value, index) => value  + invest_array[index]); //
+        document.getElementById("cf_array_output").innerHTML=cf_array;
+
+        // итого CF за весь период
+        let cf_sum = 0;
+        cf_array.forEach(function(num) {cf_sum += num;})
+        document.getElementById("cf_sum_output").innerHTML=cf_sum.toFixed(2);
+        
+        // накопит итог CF:        
+        let sum1 = 0;
+        const cf_rt_array = cf_array.map(value=> {
+            sum1 += value;
+            return sum1;
+        });
+
+        document.getElementById("cf_rt_array_output").innerHTML=cf_rt_array;
+        
+        // Расчет DCF
+        let dcf_array = [];
+        for (let i=0 ; i<20; i++) {
+            dcf_array[i] = cf_array[i] / Math.pow(1+rateDisc/100, i+1);
+        }
+        console.log(dcf_array)
+        document.getElementById("dcf_array_output").innerHTML=dcf_array;
+        
+        // итого DCF за весь период
+        let dcf_sum = 0;
+        dcf_array.forEach(function(num) {dcf_sum += num;})
+        document.getElementById("dcf_sum_output").innerHTML=dcf_sum.toFixed(2);
+
+        // накопит итог DCF:        
+        let sum2 = 0;
+        const dcf_rt_array = dcf_array.map(value=> {
+            sum2 += value;
+            return sum2;
+        });
+
+        document.getElementById("dcf_rt_array_output").innerHTML=dcf_rt_array;
+
+        
+        // Вывод графика CF
+        const labels_4 = cf_array.map((_, index) => `${index}`);
+
+        const ctx_4 = document.getElementById('chart_4').getContext('2d');
+        if (chart_4) {
+            chart_4.destroy();
+        }
+        chart_4 = new Chart(ctx_4, {
+            type: 'line',
+            data: {
+                labels: labels_4,
+                datasets: [
+                    {
+                        label: "CF накопит.итог",
+                        data: cf_rt_array,
+                        backgroundColor: "darkviolet",
+                        borderWidth: 1,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+       
+        // Вывод графика DCF
+        const labels_5 = dcf_array.map((_, index) => `${index}`);
+
+        const ctx_5 = document.getElementById('chart_5').getContext('2d');
+        if (chart_5) {
+            chart_5.destroy();
+        }
+        chart_5 = new Chart(ctx_5, {
+            type: 'line',
+            data: {
+                labels: labels_4,
+                datasets: [
+                    {
+                        label: "DCF накопит.итог",
+                        data: dcf_rt_array,
+                        backgroundColor: "indigo",
+                        borderWidth: 1,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+
+    }
+
+
+</script>
+
+</body>
+</html>
+
+<!-- ver. 0.9.1 2025-01-08
+-->
