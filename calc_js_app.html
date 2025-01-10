@@ -177,8 +177,7 @@
             <h3>Ежегодный платеж по телу кредита: <span id="kredPayYear_output"></span></h3>
             
             <p><small>Кредит: <span id="loanBal_output"></span></small></p>             
-            <p><small>Проценты по кредиту: <span id="interest_array_output"></span></small></p>
-          
+            <p><small>Проценты по кредиту: <span id="interest_array_output"></span></small></p>          
                     
             <!--График кредита-->
             <div class="chart-container">
@@ -255,7 +254,7 @@
                 <hr>
                 <p>&copy; Copyright 2025 <strong><span>Смоленышев Олег Вячеславович. ИНН 771800842058. ОГРН 323774600351922</span></strong>. All Rights Reserved</p>
                 <p><strong>Email: </strong><span itemprop="email"><a href="mailto:smolenishev@otter-finance.ru" target="_blank">smolenishev@otter-finance.ru</a></span></p>
-                <p><small>Бета - версия (0.9.1) от 2025-01-08</small></p>
+                <p><small>Бета - версия (0.9.2) от 2025-01-10</small></p>
                 <hr>
             </div>
 
@@ -423,9 +422,11 @@
         interest_19,
         interest_20,
         ];
+        // округляю до 1 знака и перевожу в число:
+        const round_interest_array = interest_array.map(num => parseFloat(num.toFixed(1)));
         
         // для выврла на экран
-        document.getElementById('interest_array_output').innerText = interest_array;
+        document.getElementById('interest_array_output').innerText = round_interest_array;
         
         // итого продаж за весь период
         let interest_sum = 0;
@@ -522,8 +523,11 @@
 
         // дополняю массв до 20 значений
         while (amort_array.length <20) {amort_array.push(0);}
+        
+        // округляю до 1 знака и перевожу в число:
+        const round_amort_array = amort_array.map(num => parseFloat(num.toFixed(1)));
 
-        document.getElementById("amort_array_output").innerHTML=amort_array;
+        document.getElementById("amort_array_output").innerHTML= round_amort_array;
                 
         // итого амортизация за весь период
         let amort_sum = 0;
@@ -537,7 +541,9 @@
             sum += value;
             return sum;
         });
-        document.getElementById("active3_array_output").innerHTML=active3_array;
+        // округляю до 1 знака и перевожу в число:
+        const round_active3_array = active3_array.map(num => parseFloat(num.toFixed(1)));
+        document.getElementById("active3_array_output").innerHTML= round_active3_array;
 
         // Вывод графика амортизации
         const labels_3 = amort_array.map((_, index) => `${index}`);
@@ -554,14 +560,14 @@
                     {
                         label: "Актив на конец периода",
                         data: active3_array,
-                        backgroundColor: "darkorange",
+                        backgroundColor: "gold",
                         borderWidth: 1,
                         fill: false
                     },
                     {
                         label: "Амортизация по периодам",
                         data: amort_array,
-                        backgroundColor: "orange",
+                        backgroundColor: "salmon",
                         borderWidth: 1,
                         fill: false
                     }
@@ -586,7 +592,9 @@
         for (let i=1; i<=20; i++) {
             sales_array.push((i>termStart) ? sales*(infl**i) : 0);
         }
-        document.getElementById("sales_array_output").innerHTML=sales_array;
+        // округляю до 1 знака и перевожу в число:
+        const round_sales_array = sales_array.map(num => parseFloat(num.toFixed(1)));
+        document.getElementById("sales_array_output").innerHTML= round_sales_array;
         
         // итого продаж за весь период
         let sales_sum = 0;
@@ -595,7 +603,9 @@
 
         //Расчет валовой прибыли
         const profit1_array = sales_array.map(function(x) {return x * (rateRentab/100)});
-        document.getElementById("profit1_array_output").innerHTML=profit1_array;
+        // округляю до 1 знака и перевожу в число:
+        const round_profit1_array = profit1_array.map(num => parseFloat(num.toFixed(1)));
+        document.getElementById("profit1_array_output").innerHTML= round_profit1_array;
 
         // итого валовая прибыль за весь период
         let profit1_sum = 0;
@@ -603,8 +613,10 @@
         document.getElementById("profit1_sum_output").innerHTML=profit1_sum.toFixed(2);
 
         // Расчет прибыли до налогообложения: валовая прибыль минус амортизация и минус проценты по кредиту
-        const profit2_array = profit1_array.map((value, index) => value  - amort_array[index] - interest_array[index]); //
-        document.getElementById("profit2_array_output").innerHTML=profit2_array;
+        const profit2_array = profit1_array.map((value, index) => value  - amort_array[index] - interest_array[index]);
+        // округляю до 1 знака и перевожу в число:
+        const round_profit2_array = profit2_array.map(num => parseFloat(num.toFixed(1)));
+        document.getElementById("profit2_array_output").innerHTML= round_profit2_array;
         // итого Прибыль до налогообл за весь период
         let profit2_sum = 0;
         profit2_array.forEach(function(num) {profit2_sum += num;})
@@ -612,15 +624,21 @@
 
         // Расчет налога на прибыль
         const tax_array = profit2_array.map(function(x) {return x * (taxPr/100)});
-        document.getElementById("tax_array_output").innerHTML=tax_array;
+        // округляю до 1 знака и перевожу в число:
+        const round_tax_array = tax_array.map(num => parseFloat(num.toFixed(1)));
+        document.getElementById("tax_array_output").innerHTML= round_tax_array;
+
         // итого налог на прибыль за весь период
         let tax_sum = 0;
         tax_array.forEach(function(num) {tax_sum += num;})
         document.getElementById("tax_sum_output").innerHTML=tax_sum.toFixed(2);
         
         // Расчет чистой прибыли:
-        const profit3_array = profit2_array.map((value, index) => value  - tax_array[index]); //
-        document.getElementById("profit2_array_output").innerHTML=profit3_array;
+        const profit3_array = profit2_array.map((value, index) => value  - tax_array[index]);
+        // округляю до 1 знака и перевожу в число:
+        const round_profit3_array = profit3_array.map(num => parseFloat(num.toFixed(1)));
+        document.getElementById("profit3_array_output").innerHTML= round_profit3_array;
+
         // итого Прибыль до налогообл за весь период
         let profit3_sum = 0;
         profit3_array.forEach(function(num) {profit3_sum += num;})
@@ -685,17 +703,23 @@
         const invest_array = [-invest];        
         // дополняю массв до 20 значений нулям
         while (invest_array.length <20) {invest_array.push(0);}
-        document.getElementById("invest_array_output").innerHTML=invest_array;
-        console.log("Длина: " + invest_array.length)
+        // округляю до 1 знака и перевожу в число:
+        const round_invest_array = invest_array.map(num => parseFloat(num.toFixed(1)));
+        document.getElementById("invest_array_output").innerHTML= round_invest_array;
+        // console.log("Длина: " + invest_array.length)
 
         // CF oper:
         const cfo_array = profit1_array.map((value, index) => value  - tax_array[index]);
-        document.getElementById("cfo_array_output").innerHTML=cfo_array;
-        console.log(cfo_array.length)
+        // округляю до 1 знака и перевожу в число:
+        const round_cfo_array = cfo_array.map(num => parseFloat(num.toFixed(1)));
+        document.getElementById("cfo_array_output").innerHTML= round_cfo_array;
+        // console.log(cfo_array.length)
 
         // CF = invest_arry + cfo_array
-        const cf_array = cfo_array.map((value, index) => value  + invest_array[index]); //
-        document.getElementById("cf_array_output").innerHTML=cf_array;
+        const cf_array = cfo_array.map((value, index) => value  + invest_array[index]);
+        // округляю до 1 знака и перевожу в число:
+        const round_cf_array = cf_array.map(num => parseFloat(num.toFixed(1)));
+        document.getElementById("cf_array_output").innerHTML= round_cf_array;
 
         // итого CF за весь период
         let cf_sum = 0;
@@ -709,15 +733,20 @@
             return sum1;
         });
 
-        document.getElementById("cf_rt_array_output").innerHTML=cf_rt_array;
+        // округляю до 1 знака и перевожу в число:
+        const round_cf_rt_array = cf_rt_array.map(num => parseFloat(num.toFixed(1)));
+
+        document.getElementById("cf_rt_array_output").innerHTML= round_cf_rt_array;
         
         // Расчет DCF
         let dcf_array = [];
         for (let i=0 ; i<20; i++) {
             dcf_array[i] = cf_array[i] / Math.pow(1+rateDisc/100, i+1);
         }
-        console.log(dcf_array)
-        document.getElementById("dcf_array_output").innerHTML=dcf_array;
+        // console.log(dcf_array)
+        // округляю до 1 знака и перевожу в число:
+        const round_dcf_array = dcf_array.map(num => parseFloat(num.toFixed(1)));
+        document.getElementById("dcf_array_output").innerHTML= round_dcf_array;
         
         // итого DCF за весь период
         let dcf_sum = 0;
@@ -731,7 +760,9 @@
             return sum2;
         });
 
-        document.getElementById("dcf_rt_array_output").innerHTML=dcf_rt_array;
+        // округляю до 1 знака и перевожу в число:
+        const round_dcf_rt_array = dcf_rt_array.map(num => parseFloat(num.toFixed(1)));
+        document.getElementById("dcf_rt_array_output").innerHTML= round_dcf_rt_array;
 
         
         // Вывод графика CF
@@ -808,5 +839,7 @@
 </body>
 </html>
 
-<!-- ver. 0.9.1 2025-01-08
+<!-- 
+ver. 0.9.1 2025-01-08
+ver. 0.9.2 2025-01-10
 -->
